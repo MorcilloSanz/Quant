@@ -5,6 +5,7 @@ set(HEADERS
     window/window.h
     gui/styles.h
     gui/gui.h
+    stocks/ticker.h
 )
 
 set(SOURCES

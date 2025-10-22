@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 
 #include "window/window.h"
 #include "gui/gui.h"
@@ -8,16 +9,32 @@ void candlestickWindow();
 void geometricBrownianMotionWindow();
 void indicatorsWindow();
 
-static float xs1[1001], ys1[1001];
-static float xs2[1001], ys2[1001];
-static float xs3[1001], ys3[1001];
-static float xs4[1001], ys4[1001];
+constexpr int total = 1000;
+
+double t[total];
+double open[total];
+double high[total];
+double low[total];
+double close[total];
+double volume[total];
+
+int samples[6] = {10, 100, 200, 500, 800, total}; // Number of samples for each time range (1D, 1M, 1Y...)
 
 int main() {
 
     // Main window
     quant::Window window("Quant", 1080, 720);
     ImGuiIO& io = quant::initGui(window);
+
+    // Init time series
+    for (int i = 0; i < total; ++i) {
+        t[i] = i;
+        open[i] = 128 + i + cos(i);
+        high[i] = open[i] + 2 % rand();
+        low[i] = open[i] - 2 % rand();
+        close[i] = open[i] + 3 % rand();
+        volume[i] = 1000000 + 1000 * rand();
+    }
 
     // Rendering
     window.setRenderingCallback([&](quant::Window* window) {
@@ -54,54 +71,67 @@ void generalWindow() {
 
     ImGui::Separator();
 
-    static bool groupVisible = true;
-    ImGui::Checkbox("Show group", &groupVisible);
+    static int currentRange = 0;
+    if (ImGui::RadioButton("1D", currentRange == 0)) currentRange = 0; ImGui::SameLine();
+    if (ImGui::RadioButton("1M", currentRange == 1)) currentRange = 1; ImGui::SameLine();
+    if (ImGui::RadioButton("1Y", currentRange == 2)) currentRange = 2; ImGui::SameLine();
+    if (ImGui::RadioButton("2Y", currentRange == 3)) currentRange = 3; ImGui::SameLine();
+    if (ImGui::RadioButton("5Y", currentRange == 4)) currentRange = 4; ImGui::SameLine();
+    if (ImGui::RadioButton("MAX", currentRange == 5)) currentRange = 5;
 
-    ImGui::SameLine();
-
-    if(ImGui::Button("Test"))
-        std::cout << "button" << std::endl;
-
-    ImGui::Separator();
+    int count = samples[currentRange];
+    int start = total - count;
 
     ImVec2 size = ImGui::GetContentRegionAvail();
     //size.y = 3 * size.y / 4;
 
     if (ImPlot::BeginSubplots("NVDA", 1, 2, size)) {
 
-        for (int i = 0; i < 1001; ++i) {
-            xs1[i] = i * 0.01f;
-            ys1[i] = xs1[i] * sin(xs1[i]);
+        // -------------------
+        // Plot de precios (OHLC)
+        // -------------------
+        double x_min = t[start];
+        double x_max = t[start + count - 1];
 
-            xs2[i] = i * 0.01f;
-            ys2[i] = xs2[i] * cos(xs2[i]);
+        double y_min = open[start];
+        double y_max = open[start];
 
-            xs3[i] = i * 0.01f;
-            ys3[i] = -xs2[i] * sin(xs2[i]);
+        for (int i = start; i < start + count; ++i) {
+            y_min = std::min(y_min, open[i]);
+            y_min = std::min(y_min, high[i]);
+            y_min = std::min(y_min, low[i]);
+            y_min = std::min(y_min, close[i]);
 
-            xs4[i] = i * 0.01f;
-            ys4[i] = xs2[i] * tanh(xs3[i]);
+            y_max = std::max(y_max, open[i]);
+            y_max = std::max(y_max, high[i]);
+            y_max = std::max(y_max, low[i]);
+            y_max = std::max(y_max, close[i]);
         }
-    
-        // Open
-        if (ImPlot::BeginPlot("Price")) {
-            
-            ImPlot::PlotLine("Open", xs1, ys1, 1001);
-            ImPlot::PlotLine("High", xs2, ys2, 1001);
-            ImPlot::PlotLine("Low", xs3, ys3, 1001);
-            ImPlot::PlotLine("Close", xs4, ys4, 1001);
 
+        ImPlot::SetNextAxisLimits(ImAxis_X1, x_min, x_max, ImGuiCond_Always);
+        ImPlot::SetNextAxisLimits(ImAxis_Y1, y_min, y_max, ImGuiCond_Always);
+
+        if (ImPlot::BeginPlot("Price")) {
+            ImPlot::PlotLine("Open", t + start, open + start, count);
+            ImPlot::PlotLine("High", t + start, high + start, count);
+            ImPlot::PlotLine("Low", t + start, low + start, count);
+            ImPlot::PlotLine("Close", t + start, close + start, count);
             ImPlot::EndPlot();
         }
 
-        // Volume
+        // -------------------
+        // Plot de volumen
+        // -------------------
+        double vol_min = 0.0;
+        double vol_max = volume[start];
+        for (int i = start; i < start + count; ++i)
+            vol_max = std::max(vol_max, volume[i]);
+
+        ImPlot::SetNextAxisLimits(ImAxis_X1, x_min, x_max, ImGuiCond_Always);
+        ImPlot::SetNextAxisLimits(ImAxis_Y1, vol_min, vol_max, ImGuiCond_Always);
+
         if (ImPlot::BeginPlot("Volume")) {
-            static double xs4[100], ys4[100];
-            for (int i = 0; i < 100; i += 2) {
-                xs4[i] = i;
-                ys4[i] = fabs(sin(xs4[i] * 0.1));
-            }
-            ImPlot::PlotBars("sin(x)", xs4, ys4, 100, 2);
+            ImPlot::PlotBars("Volume", t + start, volume + start, count, 2);
             ImPlot::EndPlot();
         }
 
