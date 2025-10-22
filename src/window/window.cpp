@@ -20,7 +20,6 @@ Window::Window(const std::string& title, unsigned int width, unsigned int height
     }
 
     glfwMakeContextCurrent(glfwWindow);
-    glfwSetFramebufferSizeCallback(glfwWindow, Window::frameBufferSizeCallback);
 
     if(glewInit() != GLEW_OK)
         std::cout << "Failed to init GLEW" << std::endl;
@@ -30,25 +29,12 @@ Window::~Window() {
     glfwTerminate();
 }
 
-void Window::processInput(GLFWwindow* window) {
-    Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
-    if (self && self->inputCallback) {
-        self->inputCallback(self);
-    }
-}
-
-void Window::frameBufferSizeCallback(GLFWwindow* window, int width, int height) {
-    Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
-    if (self && self->resizeCallback) {
-        self->resizeCallback(self, width, height);
-    }
-}
-
 void Window::loop() {
 
     while(!glfwWindowShouldClose(glfwWindow)) {
-
-        Window::processInput(glfwWindow); 
+        
+        glClearColor(0.f, 0.f, 0.f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 
         if(renderingCallback)
             renderingCallback(this);

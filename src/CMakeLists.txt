@@ -3,8 +3,8 @@ project(Quant)
 # --- Exe ---
 set(HEADERS 
     window/window.h
-    styles.h
-    gui.h
+    gui/styles.h
+    gui/gui.h
 )
 
 set(SOURCES

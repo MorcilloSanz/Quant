@@ -12,13 +12,12 @@
 namespace quant
 {
 
-void initImGui(ImGuiIO& io, const quant::Window& window) {
+void initImGui(ImGuiIO& io, const Window& window) {
 
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-    //ImGui::StyleColorsDark();
     setDarkStyle();
     //setLightStyle();
 
@@ -31,6 +30,18 @@ void initImGui(ImGuiIO& io, const quant::Window& window) {
     const char* glsl_version = "#version 130";
     ImGui_ImplGlfw_InitForOpenGL(window.getGlfwWindow(), true);
     ImGui_ImplOpenGL3_Init(glsl_version);
+}
+
+ImGuiIO& initGui(const Window& window) {
+
+    IMGUI_CHECKVERSION();
+
+    ImGui::CreateContext();
+    ImPlot::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    quant::initImGui(io, window);
+
+    return io;
 }
 
 void dockSpace(bool* p_open) {
@@ -78,7 +89,13 @@ void dockSpace(bool* p_open) {
     ImGui::End();
 }
 
-void renderImGui(ImGuiIO& io, const quant::Window& window) {
+void newFrameImGui() {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+}
+
+void renderImGui(ImGuiIO& io, const Window& window) {
 
     ImGui::Render();
 
@@ -94,6 +111,15 @@ void renderImGui(ImGuiIO& io, const quant::Window& window) {
         ImGui::RenderPlatformWindowsDefault();
         glfwMakeContextCurrent(backup_current_context);
     }
+}
+
+void destroyImGui() {
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+
+    ImPlot::DestroyContext();
+    ImGui::DestroyContext();
 }
 
 }
