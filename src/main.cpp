@@ -1,5 +1,7 @@
 #include <iostream>
 #include <algorithm>
+#include <cmath>
+#include <cstdlib>
 
 #include "window/window.h"
 #include "gui/gui.h"
@@ -18,7 +20,12 @@ double low[total];
 double close[total];
 double volume[total];
 
-int samples[6] = {10, 100, 200, 500, 800, total}; // Number of samples for each time range (1D, 1M, 1Y...)
+// Number of samples for each time range (1D, 1M, 1Y...)
+int samples[6] = {10, 100, 200, 500, 800, total}; 
+
+double random_range(double min, double max) {
+    return min + (max - min) * (rand() / (double)RAND_MAX);
+}
 
 int main() {
 
@@ -27,13 +34,24 @@ int main() {
     ImGuiIO& io = quant::initGui(window);
 
     // Init time series
+    double price = 100.0; // precio inicial
     for (int i = 0; i < total; ++i) {
         t[i] = i;
-        open[i] = 128 + i + cos(i);
-        high[i] = open[i] + 2 % rand();
-        low[i] = open[i] - 2 % rand();
-        close[i] = open[i] + 3 % rand();
-        volume[i] = 1000000 + 1000 * rand();
+
+        // Simular una variación diaria tipo random walk
+        double drift = random_range(-0.02, 0.02);  // cambio porcentual diario
+        price *= (1.0 + drift);
+
+        // Simular los valores OHLC con pequeñas fluctuaciones alrededor de "price"
+        double daily_range = price * random_range(0.005, 0.02);  // rango diario (0.5% a 2%)
+
+        open[i]  = price * (1.0 + random_range(-0.005, 0.005));
+        close[i] = price * (1.0 + random_range(-0.005, 0.005));
+        high[i]  = std::max(open[i], close[i]) + daily_range * random_range(0.3, 1.0);
+        low[i]   = std::min(open[i], close[i]) - daily_range * random_range(0.3, 1.0);
+
+        // Simular volumen con algo de ruido periódico
+        volume[i] = 1'000'000 + 200'000 * sin(i * 0.1) + random_range(-50'000, 50'000);
     }
 
     // Rendering
@@ -83,33 +101,29 @@ void generalWindow() {
     int start = total - count;
 
     ImVec2 size = ImGui::GetContentRegionAvail();
-    //size.y = 3 * size.y / 4;
-
     if (ImPlot::BeginSubplots("NVDA", 1, 2, size)) {
 
-        // -------------------
-        // Plot de precios (OHLC)
-        // -------------------
-        double x_min = t[start];
-        double x_max = t[start + count - 1];
+        // Plot prices
+        double xMin = t[start];
+        double xMax = t[start + count - 1];
 
-        double y_min = open[start];
-        double y_max = open[start];
+        double yMin = open[start];
+        double yMax = open[start];
 
         for (int i = start; i < start + count; ++i) {
-            y_min = std::min(y_min, open[i]);
-            y_min = std::min(y_min, high[i]);
-            y_min = std::min(y_min, low[i]);
-            y_min = std::min(y_min, close[i]);
+            yMin = std::min(yMin, open[i]);
+            yMin = std::min(yMin, high[i]);
+            yMin = std::min(yMin, low[i]);
+            yMin = std::min(yMin, close[i]);
 
-            y_max = std::max(y_max, open[i]);
-            y_max = std::max(y_max, high[i]);
-            y_max = std::max(y_max, low[i]);
-            y_max = std::max(y_max, close[i]);
+            yMax = std::max(yMax, open[i]);
+            yMax = std::max(yMax, high[i]);
+            yMax = std::max(yMax, low[i]);
+            yMax = std::max(yMax, close[i]);
         }
 
-        ImPlot::SetNextAxisLimits(ImAxis_X1, x_min, x_max, ImGuiCond_Always);
-        ImPlot::SetNextAxisLimits(ImAxis_Y1, y_min, y_max, ImGuiCond_Always);
+        ImPlot::SetNextAxisLimits(ImAxis_X1, xMin, xMax, ImGuiCond_Always);
+        ImPlot::SetNextAxisLimits(ImAxis_Y1, yMin, yMax, ImGuiCond_Always);
 
         if (ImPlot::BeginPlot("Price")) {
             ImPlot::PlotLine("Open", t + start, open + start, count);
@@ -119,16 +133,14 @@ void generalWindow() {
             ImPlot::EndPlot();
         }
 
-        // -------------------
-        // Plot de volumen
-        // -------------------
-        double vol_min = 0.0;
-        double vol_max = volume[start];
+        // Plot volume
+        double volMin = 0.0;
+        double volMax = volume[start];
         for (int i = start; i < start + count; ++i)
-            vol_max = std::max(vol_max, volume[i]);
+            volMax = std::max(volMax, volume[i]);
 
-        ImPlot::SetNextAxisLimits(ImAxis_X1, x_min, x_max, ImGuiCond_Always);
-        ImPlot::SetNextAxisLimits(ImAxis_Y1, vol_min, vol_max, ImGuiCond_Always);
+        ImPlot::SetNextAxisLimits(ImAxis_X1, xMin, xMax, ImGuiCond_Always);
+        ImPlot::SetNextAxisLimits(ImAxis_Y1, volMin, volMax, ImGuiCond_Always);
 
         if (ImPlot::BeginPlot("Volume")) {
             ImPlot::PlotBars("Volume", t + start, volume + start, count, 2);
