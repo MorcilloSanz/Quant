@@ -2,11 +2,14 @@ project(Quant)
 
 # --- Exe ---
 set(HEADERS 
+    window/window.h
     styles.h
+    gui.h
 )
 
 set(SOURCES
     main.cpp
+    window/window.cpp
 )
 
 add_executable(Quant ${SOURCES} ${HEADERS})
