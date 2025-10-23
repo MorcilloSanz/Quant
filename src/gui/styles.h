@@ -6,6 +6,8 @@
 
 namespace quant
 {
+
 void setDarkStyle();
 void setLightStyle();
+
 }

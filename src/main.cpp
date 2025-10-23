@@ -10,12 +10,15 @@
 #include "gui/views/candlestick.h"
 #include "gui/views/sde.h"
 #include "gui/views/indicators.h"
+#include "gui/views/tickerselectionview.h"
 
 #include "util/curl.h"
 
 int main() {
 
     quant::curl("https://dog.ceo/api/breeds/image/random > ticker.json");
+
+    quant::TickerSelectionView tickerSelectionView;
 
     // Main window
     quant::Window window("Quant", 1080, 720);
@@ -28,10 +31,14 @@ int main() {
         quant::newFrameImGui();
         quant::dockSpace(&p_open);
 
-        quant::candlestickWindow();
-        quant::geometricBrownianMotionWindow();
-        quant::indicatorsWindow();
-        quant::generalWindow();
+        if(tickerSelectionView.isSelected()) {
+            quant::candlestickWindow();
+            quant::geometricBrownianMotionWindow();
+            quant::indicatorsWindow();
+            quant::generalWindow();
+        }else {
+            tickerSelectionView.window();
+        }
 
         quant::renderImGui(io, *window);
     });

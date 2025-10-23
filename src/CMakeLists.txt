@@ -5,10 +5,12 @@ set(HEADERS
     window/window.h
     gui/styles.h
     gui/gui.h
+    gui/views/view.h
     gui/views/general.h
     gui/views/candlestick.h
     gui/views/sde.h
     gui/views/indicators.h
+    gui/views/tickerselectionview.h
     stocks/ticker.h
     util/curl.h
 )
@@ -22,6 +24,7 @@ set(SOURCES
     gui/views/candlestick.cpp
     gui/views/sde.cpp
     gui/views/indicators.cpp
+    gui/views/tickerselectionview.cpp
     util/curl.cpp
 )
 
