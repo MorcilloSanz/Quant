@@ -12,7 +12,6 @@ set(HEADERS
     gui/views/indicators.h
     gui/views/tickerselectionview.h
     stocks/ticker.h
-    util/curl.h
 )
 
 set(SOURCES
@@ -25,7 +24,6 @@ set(SOURCES
     gui/views/sde.cpp
     gui/views/indicators.cpp
     gui/views/tickerselectionview.cpp
-    util/curl.cpp
 )
 
 add_executable(Quant ${SOURCES} ${HEADERS})

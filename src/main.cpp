@@ -12,11 +12,7 @@
 #include "gui/views/indicators.h"
 #include "gui/views/tickerselectionview.h"
 
-#include "util/curl.h"
-
 int main() {
-
-    quant::curl("https://dog.ceo/api/breeds/image/random > ticker.json");
 
     quant::TickerSelectionView tickerSelectionView;
 
