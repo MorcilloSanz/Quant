@@ -11,7 +11,11 @@
 #include "gui/views/sde.h"
 #include "gui/views/indicators.h"
 
+#include "util/curl.h"
+
 int main() {
+
+    quant::curl("https://dog.ceo/api/breeds/image/random > ticker.json");
 
     // Main window
     quant::Window window("Quant", 1080, 720);
