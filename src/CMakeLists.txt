@@ -5,12 +5,22 @@ set(HEADERS
     window/window.h
     gui/styles.h
     gui/gui.h
+    gui/views/general.h
+    gui/views/candlestick.h
+    gui/views/sde.h
+    gui/views/indicators.h
     stocks/ticker.h
 )
 
 set(SOURCES
     main.cpp
     window/window.cpp
+    gui/styles.cpp
+    gui/gui.cpp
+    gui/views/general.cpp
+    gui/views/candlestick.cpp
+    gui/views/sde.cpp
+    gui/views/indicators.cpp
 )
 
 add_executable(Quant ${SOURCES} ${HEADERS})
