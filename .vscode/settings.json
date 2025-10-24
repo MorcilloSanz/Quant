@@ -62,6 +62,8 @@
         "thread": "cpp",
         "chrono": "cpp",
         "forward_list": "cpp",
-        "iomanip": "cpp"
+        "iomanip": "cpp",
+        "fstream": "cpp",
+        "filesystem": "cpp"
     }
 }

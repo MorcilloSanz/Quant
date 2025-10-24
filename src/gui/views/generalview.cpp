@@ -35,7 +35,9 @@ void GeneralView::window() {
     ImVec2 size = ImGui::GetContentRegionAvail();
     size.y = 3.f * size.y / 4.f;
 
-    if (ImPlot::BeginSubplots(tickerData.getTicker().c_str(), 1, 2, size)) {
+    std::string title = tickerData.getTicker() + " - " + tickerData.getSector();
+
+    if (ImPlot::BeginSubplots(title.c_str(), 1, 2, size)) {
 
         // Plot prices
         double xMin = tickerData.getT()[start]; 

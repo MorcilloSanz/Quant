@@ -15,8 +15,8 @@ if __name__ == "__main__":
         info = ticker.get_info()
         tickerInfo = open("ticker.txt", 'w')
     
-        tickerInfo.write(f"name:{info.get('shortName')}\n")
-        tickerInfo.write(f"sector:{info.get('sector')}\n")
+        tickerInfo.write(f"{info.get('shortName')}\n")
+        tickerInfo.write(f"{info.get('sector')}\n")
         
         tickerInfo.close()
         

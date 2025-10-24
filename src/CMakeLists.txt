@@ -12,6 +12,8 @@ set(HEADERS
     gui/views/indicators.h
     gui/views/generalview.h
     ticker/tickerdata.h
+    util/csv.h
+    util/split.h
 )
 
 set(SOURCES

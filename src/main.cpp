@@ -3,7 +3,15 @@
 #include <cmath>
 #include <cstdlib>
 #include <thread>
-#include <chrono>
+
+#include <filesystem>
+
+#if defined(_WIN32)
+    #include <windows.h>
+#elif defined(__linux__)
+    #include <unistd.h>
+    #include <limits.h>
+#endif
 
 #include "window/window.h"
 
@@ -16,15 +24,24 @@
 
 #include "ticker/tickerdata.h"
 
+std::filesystem::path getExecutablePath();
+std::string getExecutableDir();
+
 int main() {
 
     // Load ticker data
     quant::TickerData& tickerData = quant::TickerData::getInstance();
 
     std::thread tickerThread([&]() {
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-        tickerData.loadDataFromFile("history.csv");
-        tickerData.loadInfoFromFile("ticker.txt");
+
+        std::filesystem::path exePath = getExecutablePath();
+        std::string dir = exePath.parent_path().string();
+
+        tickerData.loadDataFromFile(dir + "/history.csv"); // TODO
+        tickerData.loadInfoFromFile(dir + "/ticker.txt");
+
+        std::cout << tickerData.getTicker() << std::endl;
+        std::cout << tickerData.getSector() << std::endl;
     });
 
     // Main window
@@ -60,4 +77,24 @@ int main() {
     tickerThread.join();
 
     return 0;
+}
+
+std::filesystem::path getExecutablePath() {
+#if defined(_WIN32)
+    char path[MAX_PATH];
+    GetModuleFileNameA(NULL, path, MAX_PATH);
+    return std::filesystem::path(path);
+#elif defined(__linux__)
+    char path[PATH_MAX];
+    ssize_t count = readlink("/proc/self/exe", path, sizeof(path) - 1);
+    path[count] = '\0';
+    return std::filesystem::path(path);
+#else
+    return {};
+#endif
+}
+
+std::string getExecutableDir() {
+    std::filesystem::path exePath = getExecutablePath();
+    return exePath.parent_path().string();
 }

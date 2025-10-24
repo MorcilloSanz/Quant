@@ -14,7 +14,7 @@ private:
     std::vector<double> low;
     std::vector<double> close;
     std::vector<double> volume;
-    std::string ticker;
+    std::string ticker, sector;
     bool loaded;
 private:
     TickerData();
@@ -57,6 +57,10 @@ public:
 
     inline const std::string& getTicker() {
         return ticker;
+    }
+
+    inline const std::string& getSector() {
+        return sector;
     }
 
     inline bool isLoaded() const {
