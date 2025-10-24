@@ -2,6 +2,9 @@
 
 #include "gui/gui.h"
 
+namespace quant
+{
+
 class View {
 public:
     View() = default;
@@ -9,3 +12,5 @@ public:
 public:
     virtual void window() = 0;
 };
+
+}

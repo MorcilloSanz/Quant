@@ -2,6 +2,8 @@
 
 #include "gui.h"
 
+#include <imgui/imgui_internal.h>
+
 namespace quant
 {
 
@@ -113,6 +115,53 @@ void destroyImGui() {
 
     ImPlot::DestroyContext();
     ImGui::DestroyContext();
+}
+
+void spinner(const char* label, float radius, float thickness, const ImU32& color) {
+
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    if (window->SkipItems)
+        return;
+
+    ImGuiContext& g = *GImGui;
+    const ImGuiID id = window->GetID(label);
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+    ImVec2 size((radius) * 2, (radius + g.Style.FramePadding.y) * 2);
+
+    ImRect bb(pos, ImVec2(pos.x + size.x, pos.y + size.y));
+    ImGui::ItemSize(bb, g.Style.FramePadding.y);
+    if (!ImGui::ItemAdd(bb, id))
+        return;
+
+    float t = (float)ImGui::GetTime();
+    const int num_segments = 30;
+    const int start = (int)(fabsf(sinf(t * 1.8f)) * (num_segments - 5));
+
+    const float a_min = IM_PI * 2.0f * ((float)start) / (float)num_segments;
+    const float a_max = IM_PI * 2.0f * ((float)num_segments - 3) / (float)num_segments;
+
+    ImVec2 centre = ImVec2(pos.x + radius, pos.y + radius + g.Style.FramePadding.y);
+    float rotation = t * 8.0f;
+    float angle_offset = rotation;
+
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    draw_list->PathClear();
+    for (int i = 0; i < num_segments; i++) {
+        float a = a_min + ((float)i / (float)num_segments) * (a_max - a_min);
+        ImVec2 p(centre.x + cosf(a + angle_offset) * radius,
+                 centre.y + sinf(a + angle_offset) * radius);
+        draw_list->PathLineTo(p);
+    }
+
+    draw_list->PathStroke(color, false, thickness);
+}
+
+void spinnerWindow(const std::string& title, float radius, float thickness, const ImU32& color) {
+    ImGui::Begin(title.c_str());
+    quant::spinner("##spinnerTickerData", radius, thickness, color);
+    ImGui::SameLine();
+    ImGui::Text("Loading...");
+    ImGui::End();
 }
 
 }
