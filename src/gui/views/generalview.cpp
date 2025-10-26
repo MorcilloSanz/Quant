@@ -22,68 +22,86 @@ void GeneralView::window() {
     if (ImGui::RadioButton("1Y", currentRange == 2)) currentRange = 2; ImGui::SameLine();
     if (ImGui::RadioButton("2Y", currentRange == 3)) currentRange = 3; ImGui::SameLine();
     if (ImGui::RadioButton("5Y", currentRange == 4)) currentRange = 4; ImGui::SameLine();
-    if (ImGui::RadioButton("MAX", currentRange == 5)) currentRange = 5;
+    if (ImGui::RadioButton("MAX", currentRange == 5)) currentRange = 5; ImGui::SameLine();
+
+    static int step = 6;
+    ImGui::SliderInt("Step", &step, 1, 20);
 
     int samples[6] = {10, 31, 365, 730, 1825, total}; 
 
-    int count = samples[currentRange];
-    if(count < tickerData.getT().size())
-        count = static_cast<int>(tickerData.getT().size());
-
+    int count = std::min(samples[currentRange], total);
     int start = total - count;
 
-    ImVec2 size = ImGui::GetContentRegionAvail();
-    size.y = 3.f * size.y / 4.f;
+    std::string title = tickerData.getTicker() + " [" + tickerData.getSector() + "]";
 
-    std::string title = tickerData.getTicker() + " - " + tickerData.getSector();
+    // Plot prices
+    double xMin = tickerData.getT()[start]; 
+    double xMax = tickerData.getT()[start + count - 1];
 
-    if (ImPlot::BeginSubplots(title.c_str(), 1, 2, size)) {
+    double yMin = tickerData.getOpen()[start];
+    double yMax = tickerData.getOpen()[start];
 
-        // Plot prices
-        double xMin = tickerData.getT()[start]; 
-        double xMax = tickerData.getT()[start + count - 1];
+    for (int i = start; i < start + count; ++i) {
+        yMin = std::min(yMin, tickerData.getOpen()[i]);
+        yMin = std::min(yMin, tickerData.getHigh()[i]);
+        yMin = std::min(yMin, tickerData.getLow()[i]);
+        yMin = std::min(yMin, tickerData.getClose()[i]);
 
-        double yMin = tickerData.getOpen()[start];
-        double yMax = tickerData.getOpen()[start];
+        yMax = std::max(yMax, tickerData.getOpen()[i]);
+        yMax = std::max(yMax, tickerData.getHigh()[i]);
+        yMax = std::max(yMax, tickerData.getLow()[i]);
+        yMax = std::max(yMax, tickerData.getClose()[i]);
+    }
 
-        for (int i = start; i < start + count; ++i) {
-            yMin = std::min(yMin, tickerData.getOpen()[i]);
-            yMin = std::min(yMin, tickerData.getHigh()[i]);
-            yMin = std::min(yMin, tickerData.getLow()[i]);
-            yMin = std::min(yMin, tickerData.getClose()[i]);
+    ImPlot::SetNextAxisLimits(ImAxis_X1, xMin, xMax, ImGuiCond_Always);
+    ImPlot::SetNextAxisLimits(ImAxis_Y1, yMin, yMax, ImGuiCond_Always);
 
-            yMax = std::max(yMax, tickerData.getOpen()[i]);
-            yMax = std::max(yMax, tickerData.getHigh()[i]);
-            yMax = std::max(yMax, tickerData.getLow()[i]);
-            yMax = std::max(yMax, tickerData.getClose()[i]);
+    std::string priceTitle = title + " - Price ($)";
+    if (ImPlot::BeginPlot(priceTitle.c_str(), ImVec2(-1, 0), ImPlotFlags_Crosshairs)) {
+
+        std::vector<double> xTicks;
+        std::vector<const char*> xLabels;
+        const int tickStep = std::max(1, count / step);
+
+        for (int i = start; i < start + count; i += tickStep) {
+            xTicks.push_back(tickerData.getT()[i]);
+            xLabels.push_back(tickerData.getDates()[i].c_str());
         }
 
-        ImPlot::SetNextAxisLimits(ImAxis_X1, xMin, xMax, ImGuiCond_Always);
-        ImPlot::SetNextAxisLimits(ImAxis_Y1, yMin, yMax, ImGuiCond_Always);
+        ImPlot::SetupAxisTicks(ImAxis_X1, xTicks.data(), (int)xTicks.size(), xLabels.data());
 
-        if (ImPlot::BeginPlot("Price")) {
-            ImPlot::PlotLine("Open", &tickerData.getT()[0] + start, &tickerData.getOpen()[0] + start, count);
-            ImPlot::PlotLine("High", &tickerData.getT()[0] + start, &tickerData.getHigh()[0] + start, count);
-            ImPlot::PlotLine("Low", &tickerData.getT()[0] + start, &tickerData.getLow()[0] + start, count);
-            ImPlot::PlotLine("Close", &tickerData.getT()[0] + start, &tickerData.getClose()[0] + start, count);
-            ImPlot::EndPlot();
+        ImPlot::PlotLine("Open", &tickerData.getT()[0] + start, &tickerData.getOpen()[0] + start, count);
+        ImPlot::PlotLine("High", &tickerData.getT()[0] + start, &tickerData.getHigh()[0] + start, count);
+        ImPlot::PlotLine("Low", &tickerData.getT()[0] + start, &tickerData.getLow()[0] + start, count);
+        ImPlot::PlotLine("Close", &tickerData.getT()[0] + start, &tickerData.getClose()[0] + start, count);
+        ImPlot::EndPlot();
+    }
+
+    // Plot Volume
+    double volMin = 0.0;
+    double volMax = tickerData.getVolume()[start];
+    for (int i = start; i < start + count; ++i)
+        volMax = std::max(volMax, tickerData.getVolume()[i]);
+
+    ImPlot::SetNextAxisLimits(ImAxis_X1, xMin, xMax, ImGuiCond_Always);
+    ImPlot::SetNextAxisLimits(ImAxis_Y1, volMin, volMax, ImGuiCond_Always);
+
+    std::string volumeTitle = title + " - Volume";
+    if (ImPlot::BeginPlot(volumeTitle.c_str(), ImVec2(-1, 0), ImPlotFlags_Crosshairs)) {
+
+        std::vector<double> xTicks;
+        std::vector<const char*> xLabels;
+        const int tickStep = std::max(1, count / step);
+
+        for (int i = start; i < start + count; i += tickStep) {
+            xTicks.push_back(tickerData.getT()[i]);
+            xLabels.push_back(tickerData.getDates()[i].c_str());
         }
 
-        // Plot Volume
-        double volMin = 0.0;
-        double volMax = tickerData.getVolume()[start];
-        for (int i = start; i < start + count; ++i)
-            volMax = std::max(volMax, tickerData.getVolume()[i]);
+        ImPlot::SetupAxisTicks(ImAxis_X1, xTicks.data(), (int)xTicks.size(), xLabels.data());
 
-        ImPlot::SetNextAxisLimits(ImAxis_X1, xMin, xMax, ImGuiCond_Always);
-        ImPlot::SetNextAxisLimits(ImAxis_Y1, volMin, volMax, ImGuiCond_Always);
-
-        if (ImPlot::BeginPlot("Volume")) {
-            ImPlot::PlotBars("Volume", &tickerData.getT()[0] + start, &tickerData.getVolume()[0] + start, count, 2);
-            ImPlot::EndPlot();
-        }
-
-        ImPlot::EndSubplots();
+        ImPlot::PlotBars("Volume", &tickerData.getT()[0] + start, &tickerData.getVolume()[0] + start, count, 2);
+        ImPlot::EndPlot();
     }
     
     ImGui::End();

@@ -17,13 +17,25 @@ void TickerData::loadDataFromFile(const std::string& file) {
 
     CSVReader reader(file);
 
-    for (int i = 0; i < reader.getGridWidth(); i++) {
-        for (int j = 0; j < reader.getGridHeight(); j++) {
-            
-            std::string value = reader.getCell(i, j);
+    for(int j = 0; j < reader.getGridHeight(); j ++) {
 
-        }
+        if(j == 0)
+            continue;
+
+        std::string date = reader.getCell(HISTORY_COLUMN_DATE, j);
+        date = split(date, " ")[0];
+
+        t.push_back(j - 1);
+        dates.push_back(date);
+        open.push_back(std::stod(reader.getCell(HISTORY_COLUMN_OPEN, j)));
+        high.push_back(std::stod(reader.getCell(HISTORY_COLUMN_HIGH, j)));
+        low.push_back(std::stod(reader.getCell(HISTORY_COLUMN_LOW, j)));
+        close.push_back(std::stod(reader.getCell(HISTORY_COLUMN_CLOSE, j)));
+        volume.push_back(std::stod(reader.getCell(HISTORY_COLUMN_VOLUME, j)));
     }
+
+    if(!dates.empty())
+        dates[dates.size() - 1] = "Now";
 
     loaded = true;
 }

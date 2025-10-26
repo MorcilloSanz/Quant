@@ -17,12 +17,14 @@
 
 #include "gui/gui.h"
 #include "gui/views/generalview.h"
-#include "gui/views/general.h"
 #include "gui/views/candlestick.h"
 #include "gui/views/sde.h"
 #include "gui/views/indicators.h"
 
 #include "ticker/tickerdata.h"
+
+#define HISTORY_FILE_NAME "history.csv"
+#define TICKER_FILE_NAME "ticker.txt"
 
 std::filesystem::path getExecutablePath();
 std::string getExecutableDir();
@@ -37,8 +39,8 @@ int main() {
         std::filesystem::path exePath = getExecutablePath();
         std::string dir = exePath.parent_path().string();
 
-        tickerData.loadDataFromFile(dir + "/history.csv"); // TODO
-        tickerData.loadInfoFromFile(dir + "/ticker.txt");
+        tickerData.loadDataFromFile(dir + "/" + HISTORY_FILE_NAME);
+        tickerData.loadInfoFromFile(dir + "/" + TICKER_FILE_NAME);
 
         std::cout << tickerData.getTicker() << std::endl;
         std::cout << tickerData.getSector() << std::endl;
@@ -61,8 +63,7 @@ int main() {
             quant::candlestickWindow();
             quant::geometricBrownianMotionWindow();
             quant::indicatorsWindow();
-            quant::generalWindow();
-            //generalView.window();
+            generalView.window();
         }else{
             quant::spinnerWindow("Loading ticker data", 10.0f, 3.0f, IM_COL32(255, 255, 255, 255));
         }
@@ -72,8 +73,8 @@ int main() {
 
     // Main Loop
     window.loop();
-    quant::destroyImGui();
 
+    quant::destroyImGui();
     tickerThread.join();
 
     return 0;

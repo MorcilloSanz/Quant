@@ -6,7 +6,6 @@ set(HEADERS
     gui/styles.h
     gui/gui.h
     gui/views/view.h
-    gui/views/general.h
     gui/views/candlestick.h
     gui/views/sde.h
     gui/views/indicators.h
@@ -21,7 +20,6 @@ set(SOURCES
     window/window.cpp
     gui/styles.cpp
     gui/gui.cpp
-    gui/views/general.cpp
     gui/views/candlestick.cpp
     gui/views/sde.cpp
     gui/views/indicators.cpp

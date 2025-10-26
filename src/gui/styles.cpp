@@ -52,6 +52,11 @@ void setDarkStyle() {
     colors[ImGuiCol_TabActive]              = accent;
     colors[ImGuiCol_TextSelectedBg]         = ImVec4(accent.x, accent.y, accent.z, 0.35f);
     colors[ImGuiCol_NavHighlight]           = accent;
+    colors[ImGuiCol_FrameBg]                = bg1;
+    colors[ImGuiCol_FrameBgHovered]         = bg2;
+    colors[ImGuiCol_FrameBgActive]          = ImVec4(accent.x, accent.y, accent.z, 0.25f); 
+    colors[ImGuiCol_SliderGrab]             = accent;
+    colors[ImGuiCol_SliderGrabActive]       = ImVec4(accent.x, accent.y, accent.z, 0.8f);
 
     // --- Espaciado y estética ---
     style.WindowPadding       = ImVec2(12, 12);
@@ -114,6 +119,11 @@ void setLightStyle() {
     colors[ImGuiCol_TabActive]              = accent;
     colors[ImGuiCol_TextSelectedBg]         = ImVec4(accent.x, accent.y, accent.z, 0.25f);
     colors[ImGuiCol_NavHighlight]           = accent;
+    colors[ImGuiCol_FrameBg]                = bg1;
+    colors[ImGuiCol_FrameBgHovered]         = bg2;
+    colors[ImGuiCol_FrameBgActive]          = ImVec4(accent.x, accent.y, accent.z, 0.25f);
+    colors[ImGuiCol_SliderGrab]             = accent;
+    colors[ImGuiCol_SliderGrabActive]       = ImVec4(accent.x, accent.y, accent.z, 0.8f);
 
     // --- Estilo y proporciones ---
     style.WindowPadding       = ImVec2(12, 12);

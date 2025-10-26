@@ -3,6 +3,13 @@
 #include <iostream>
 #include <vector>
 
+#define HISTORY_COLUMN_DATE   0
+#define HISTORY_COLUMN_OPEN   1
+#define HISTORY_COLUMN_HIGH   2
+#define HISTORY_COLUMN_LOW    3
+#define HISTORY_COLUMN_CLOSE  4
+#define HISTORY_COLUMN_VOLUME 5
+
 namespace quant
 {
 
@@ -14,6 +21,7 @@ private:
     std::vector<double> low;
     std::vector<double> close;
     std::vector<double> volume;
+    std::vector<std::string> dates;
     std::string ticker, sector;
     bool loaded;
 private:
@@ -53,6 +61,10 @@ public:
 
     inline const std::vector<double>& getVolume() {
         return volume;
+    }
+
+    inline const std::vector<std::string>& getDates() {
+        return dates;
     }
 
     inline const std::string& getTicker() {
