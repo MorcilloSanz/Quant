@@ -73,8 +73,17 @@ void dockSpace(bool* p_open) {
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
     }
 
+    static bool dark = true;
     if (ImGui::BeginMenuBar()) {
         if (ImGui::BeginMenu("Options")) {
+            if (ImGui::MenuItem("Toggle color style", NULL, false, p_open != NULL)) {
+                dark = !dark;
+                if(dark)
+                    setDarkStyle();
+                else
+                    setLightStyle();
+            }
+            ImGui::Separator();
             if (ImGui::MenuItem("Close", NULL, false, p_open != NULL)) exit(0);
             ImGui::EndMenu();
         }
