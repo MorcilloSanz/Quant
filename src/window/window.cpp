@@ -8,7 +8,7 @@ Window::Window(const std::string& title, unsigned int width, unsigned int height
     if (!glfwInit())
         std::cout << "Couldn't initialize window" << std::endl;
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 

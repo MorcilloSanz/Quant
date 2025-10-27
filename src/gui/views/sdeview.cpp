@@ -1,9 +1,14 @@
-#include "sde.h"
+#include "sdeview.h"
 
-namespace quant
-{
+#include "gui/gui.h"
 
-void geometricBrownianMotionWindow() {
+namespace quant {
+
+SDEView::SDEView()
+    : View() {
+}
+
+void SDEView::window() {
     ImGui::Begin("Geometric Brownian Motion");
     ImGui::Text("SDE brownian motion and simulations");
     ImGui::End();

@@ -6,10 +6,10 @@ set(HEADERS
     gui/styles.h
     gui/gui.h
     gui/views/view.h
-    gui/views/candlestick.h
-    gui/views/sde.h
-    gui/views/indicators.h
     gui/views/generalview.h
+    gui/views/candlestickview.h
+    gui/views/sdeview.h
+    gui/views/indicatorview.h
     ticker/tickerdata.h
     util/csv.h
     util/split.h
@@ -20,10 +20,10 @@ set(SOURCES
     window/window.cpp
     gui/styles.cpp
     gui/gui.cpp
-    gui/views/candlestick.cpp
-    gui/views/sde.cpp
-    gui/views/indicators.cpp
     gui/views/generalview.cpp
+    gui/views/candlestickview.cpp
+    gui/views/sdeview.cpp
+    gui/views/indicatorview.cpp
     ticker/tickerdata.cpp
 )
 

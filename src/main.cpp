@@ -17,9 +17,9 @@
 
 #include "gui/gui.h"
 #include "gui/views/generalview.h"
-#include "gui/views/candlestick.h"
-#include "gui/views/sde.h"
-#include "gui/views/indicators.h"
+#include "gui/views/candlestickview.h"
+#include "gui/views/sdeview.h"
+#include "gui/views/indicatorview.h"
 
 #include "ticker/tickerdata.h"
 
@@ -51,6 +51,9 @@ int main() {
     ImGuiIO& io = quant::initGui(window);
 
     quant::GeneralView generalView;
+    quant::CandlestickView candlestickView;
+    quant::SDEView sdeView;
+    quant::IndicatorView indicatorView;
 
     // Rendering
     window.setRenderingCallback([&](quant::Window* window) {
@@ -60,9 +63,9 @@ int main() {
         quant::dockSpace(&p_open);
 
         if(tickerData.isLoaded()) {
-            quant::candlestickWindow();
-            quant::geometricBrownianMotionWindow();
-            quant::indicatorsWindow();
+            candlestickView.window();
+            sdeView.window();
+            indicatorView.window();
             generalView.window();
         }else{
             quant::spinnerWindow("Loading ticker data", 10.0f, 3.0f, IM_COL32(255, 255, 255, 255));
